@@ -1,0 +1,25 @@
+DAX - Date Dim = 
+VAR BASECALENDAR =
+    CALENDAR ( DATE (  year(TODAY())-3, 1, 1 ), DATE ( year(TODAY()), 12, 31 ) )
+RETURN
+    GENERATE (
+        BASECALENDAR,
+        VAR BASEDATE = [DATE]
+        VAR YEARDATE = YEAR ( BASEDATE )
+        VAR MONTHNUMBER = MONTH ( BASEDATE )
+        VAR YearMonthNumber = YEARDATE * 12 + (MONTHNUMBER - 1)
+        VAR DayOfWeekNumber = WEEKDAY(BASEDATE)
+        VAR DayOfWeek = FORMAT(WEEKDAY(BASEDATE),"dddd")
+        VAR DayOfMonthNumber = DAY(BASEDATE)
+        RETURN ROW (
+            "Day", BASEDATE,
+            "Year", YEARDATE,
+            "Month Number", MONTHNUMBER,
+            "Month Name", FORMAT ( BASEDATE, "MMMM" ),
+            "Year Month Number", YEARMONTHNUMBER,
+            "Year Month", FORMAT ( BASEDATE, "MMM YY" ),
+            "Day of Week", DayOfWeek,
+            "Day of Week Number", DayOfWeekNumber,
+            "Day of Month Number",DayOfMonthNumber
+        )
+    )
