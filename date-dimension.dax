@@ -7,19 +7,25 @@ RETURN
         VAR BASEDATE = [DATE]
         VAR YEARDATE = YEAR ( BASEDATE )
         VAR MONTHNUMBER = MONTH ( BASEDATE )
-        VAR YearMonthNumber = YEARDATE * 12 + (MONTHNUMBER - 1)
+        VAR QUARTER = CONCATENATE( "Q" , ROUNDUP( MONTHNUMBER / 3 , 0 ))
+        VAR YearMonthNumber = YEARDATE * 12 + ( MONTHNUMBER - 1)
         VAR DayOfWeekNumber = WEEKDAY(BASEDATE)
         VAR DayOfWeek = FORMAT(WEEKDAY(BASEDATE),"dddd")
         VAR DayOfMonthNumber = DAY(BASEDATE)
+        VAR Weekday = IF(DayOfWeekNumber >= 2 && DayOfWeekNumber <= 6, TRUE, FALSE)
         RETURN ROW (
             "Day", BASEDATE,
             "Year", YEARDATE,
+            "Quarter", QUARTER,
             "Month Number", MONTHNUMBER,
             "Month Name", FORMAT ( BASEDATE, "MMMM" ),
             "Year Month Number", YEARMONTHNUMBER,
             "Year Month", FORMAT ( BASEDATE, "MMM YY" ),
             "Day of Week", DayOfWeek,
             "Day of Week Number", DayOfWeekNumber,
-            "Day of Month Number",DayOfMonthNumber
-        )
-    )
+            "Day of Month Number",DayOfMonthNumber,
+            "Is Weekday", Weekday,
+            "Previous Weekday", IF(DayOfWeekNumber = 6, BASEDATE + 3, IF(DayOfWeekNumber = 7, BASEDATE + 2, BASEDATE + 1))
+            //"Is Previous Weekday", IF('DAX - Date Dim'[Previous Weekday] = TODAY(), TRUE, FALSE)
+                     )
+                 )
