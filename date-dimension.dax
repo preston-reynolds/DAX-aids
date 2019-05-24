@@ -1,25 +1,103 @@
 DAX - Date Dim = 
-VAR BASECALENDAR =
-    CALENDAR ( DATE (  year(TODAY())-3, 1, 1 ), DATE ( year(TODAY()), 12, 31 ) )
+VAR BASECALENDAR = CALENDAR ( DATE (  year(TODAY())-3, 1, 1 ), DATE ( year(TODAY()), 12, 31 ) )
 RETURN
     GENERATE (
         BASECALENDAR,
-        VAR BASEDATE = [DATE]
-        VAR YEARDATE = YEAR ( BASEDATE )
-        VAR MONTHNUMBER = MONTH ( BASEDATE )
-        VAR YearMonthNumber = YEARDATE * 12 + (MONTHNUMBER - 1)
-        VAR DayOfWeekNumber = WEEKDAY(BASEDATE)
+		VAR BASEDATE = [DATE]
+		
+		-- YEAR
+		VAR YEARNUMBER = YEAR ( BASEDATE )
+		VAR YEARFRAC = YEARFRAC(BASEDATE,DATE(YEARNUMBER,1,1))
+		
+		-- QUARTER
+		VAR QUARTER = CONCATENATE("Q",ROUNDUP(MONTH([Date])/3,0))
+		VAR QUARTERNUMBER = ROUNDUP(MONTH([Date])/3,0)
+		
+		-- MONTH
+		VAR MONTHNUMBER = MONTH ( BASEDATE )
+		VAR MONTH = FORMAT(WEEKDAY(BASEDATE),"MMMM")
+
+		-- WEEK
+		VAR WEEKNUMBER = WEEKNUM(BASEDATE)
+		// VAR ISOWEEKNUMBER = 
+		
+		-- DAY
+		VAR DayOfWeekNumber = WEEKDAY(BASEDATE)
         VAR DayOfWeek = FORMAT(WEEKDAY(BASEDATE),"dddd")
         VAR DayOfMonthNumber = DAY(BASEDATE)
+		// VAR WeekofMonthNUMBER = 1 + WEEKNUM(BASEDATE) - WEEKNUM(STARTOFMONTH(BASECALENDAR))
+		
+		-- COMBOS
+		VAR YEARQUARTER = CONCATENATE(YEARNUMBER, (" Q" & QUARTERNUMBER))
+		VAR YEARMONTHNUMBER = CONCATENATE(YEARNUMBER, (" Month " & MONTHNUMBER))
+		VAR YEARMONTH = CONCATENATE(YEARNUMBER, (" " & MONTH))
+		VAR YEARWEEK = CONCATENATE(YEARNUMBER, (" Week " & WEEKNUMBER))
+
+        -- OTHERS
+        VAR HOLIDAY = IFERROR(LOOKUPVALUE(Holidays[Title],Holidays[EventDate],BASEDATE),BLANK())
+		
+		-- IS COLUMNS		
+		VAR ISTODAY = IF(BASEDATE = TODAY(),TRUE(),FALSE())
+		VAR ISCURRENTWEEK = IF(and(WEEKNUM(TODAY())=WEEKNUMBER,YEAR(TODAY())=YEARNUMBER),TRUE(),FALSE())
+		VAR ISCURRENTMONTH = IF(and(MONTH(TODAY())=MONTHNUMBER,YEAR(TODAY())=YEARNUMBER),TRUE(),FALSE())
+		VAR ISCURRENTQUARTER = IF(and(ROUNDUP(MONTH(TODAY())/3,0)=QUARTERNUMBER,YEAR(TODAY())=YEARNUMBER),TRUE(),FALSE())
+		VAR ISCURRENTYEAR = if(year(TODAY()) =YEARNUMBER,TRUE(),FALSE())
+        VAR ISWEEKDAY = IF(or(DayOfWeekNumber =1,DayOfWeekNumber=7),FALSE(),TRUE())
+        VAR ISWEEKEND = Not ISWEEKDAY
+        VAR ISHOLIDAY = IF(ISBLANK(HOLIDAY),FALSE(),TRUE())       
+		
+		--RANK
+		// VAR DAYRANK = RANKX(ALL(basecalendar),CALCULATE(BASEDATE))
+		// VAR WEEKRANK = 
+		// VAR MONTHRANK = 
+		
+		--OFFSET
+		// VAR DAYOFFSET =
+		// VAR WEEKOFFSET = 
+		// VAR MONTHOFFSET = 
+		// VAR QUARTEROFFSET = 
+		// VAR YEAROFFSET = 
+
+       -- SORTING
+		VAR SORTYearQuarter = FORMAT(BASEDATE, "YYYY") & CONCATENATE(".",QUARTERNUMBER)
+		VAR SORTYearMonth = FORMAT(BASEDATE, "YYYY.mm")
+		VAR SORTYearWeek = FORMAT(BASEDATE, "YYYY") & "." & WEEKNUM(BASEDATE)
+		
+
+		
         RETURN ROW (
-            "Day", BASEDATE,
-            "Year", YEARDATE,
-            "Month Number", MONTHNUMBER,
-            "Month Name", FORMAT ( BASEDATE, "MMMM" ),
-            "Year Month Number", YEARMONTHNUMBER,
-            "Year Month", FORMAT ( BASEDATE, "MMM YY" ),
-            "Day of Week", DayOfWeek,
-            "Day of Week Number", DayOfWeekNumber,
-            "Day of Month Number",DayOfMonthNumber
+            
+            "Year", YEARNUMBER
+            ,"Fraction of Year",YEARFRAC
+            ,"Year Quarter",YEARQUARTER
+            ,"Year Month Number", YEARMONTHNUMBER
+            ,"Year Month", YEARMONTH
+            ,"Year Week",YEARWEEK
+            
+            ,"Quarter",QUARTER
+            ,"Quarter Number",QUARTERNUMBER
+            
+            ,"Month Number", MONTHNUMBER
+            ,"Month", MONTH
+
+            ,"Day of Week", DayOfWeek
+            ,"Day of Week Number", DayOfWeekNumber
+            ,"Day of Month Number",DayOfMonthNumber
+
+            ,"Sort Year Quarter",SORTYearQuarter
+            ,"Sort Year Month",SORTYearMonth
+            ,"Sort Year Week",SORTYearWeek
+            ,"Holiday",HOLIDAY
+
+            ,"Is Today",ISTODAY 
+            ,"Is Weekday",ISWEEKDAY
+            ,"Is Weekend",ISWEEKEND
+            ,"Is Current Week",ISCURRENTWEEK
+            ,"Is Current Month",ISCURRENTMONTH
+            ,"Is Current Year",ISCURRENTYEAR
+            ,"Is Holiday",ISHOLIDAY
+            ,"Is Workday",IF(AND(NOT ISWEEKEND, NOT ISHOLIDAY),TRUE(),FALSE)
+            //,"Day Rank",DAYRANK
+            
         )
     )
