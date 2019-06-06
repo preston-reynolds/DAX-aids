@@ -15,7 +15,7 @@ RETURN
 		
 		-- MONTH
 		VAR MONTHNUMBER = MONTH ( BASEDATE )
-		VAR MONTH = FORMAT(WEEKDAY(BASEDATE),"MMMM")
+		VAR MONTH = FORMAT(BASEDATE,"MMMM")
 
 		-- WEEK
 		VAR WEEKNUMBER = WEEKNUM(BASEDATE)
@@ -30,11 +30,11 @@ RETURN
 		-- COMBOS
 		VAR YEARQUARTER = CONCATENATE(YEARNUMBER, (" Q" & QUARTERNUMBER))
 		VAR YEARMONTHNUMBER = CONCATENATE(YEARNUMBER, (" Month " & MONTHNUMBER))
-		VAR YEARMONTH = CONCATENATE(YEARNUMBER, (" " & MONTH))
+		VAR YEARMONTH = CONCATENATE(MONTH, (" " & YEARNUMBER))
 		VAR YEARWEEK = CONCATENATE(YEARNUMBER, (" Week " & WEEKNUMBER))
 
-        -- OTHERS
-        VAR HOLIDAY = IFERROR(LOOKUPVALUE(Holidays[Title],Holidays[EventDate],BASEDATE),BLANK())
+        // -- OTHERS
+        // VAR HOLIDAY = IFERROR(LOOKUPVALUE(Holidays[Title],Holidays[EventDate],BASEDATE),BLANK())
 		
 		-- IS COLUMNS		
 		VAR ISTODAY = IF(BASEDATE = TODAY(),TRUE(),FALSE())
@@ -44,7 +44,7 @@ RETURN
 		VAR ISCURRENTYEAR = if(year(TODAY()) =YEARNUMBER,TRUE(),FALSE())
         VAR ISWEEKDAY = IF(or(DayOfWeekNumber =1,DayOfWeekNumber=7),FALSE(),TRUE())
         VAR ISWEEKEND = Not ISWEEKDAY
-        VAR ISHOLIDAY = IF(ISBLANK(HOLIDAY),FALSE(),TRUE())       
+        // VAR ISHOLIDAY = IF(ISBLANK(HOLIDAY),FALSE(),TRUE())       
 		
 		--RANK
 		// VAR DAYRANK = RANKX(ALL(basecalendar),CALCULATE(BASEDATE))
@@ -87,7 +87,7 @@ RETURN
             ,"Sort Year Quarter",SORTYearQuarter
             ,"Sort Year Month",SORTYearMonth
             ,"Sort Year Week",SORTYearWeek
-            ,"Holiday",HOLIDAY
+            // ,"Holiday",HOLIDAY
 
             ,"Is Today",ISTODAY 
             ,"Is Weekday",ISWEEKDAY
@@ -95,8 +95,8 @@ RETURN
             ,"Is Current Week",ISCURRENTWEEK
             ,"Is Current Month",ISCURRENTMONTH
             ,"Is Current Year",ISCURRENTYEAR
-            ,"Is Holiday",ISHOLIDAY
-            ,"Is Workday",IF(AND(NOT ISWEEKEND, NOT ISHOLIDAY),TRUE(),FALSE)
+            // ,"Is Holiday",ISHOLIDAY
+            // ,"Is Workday",IF(AND(NOT ISWEEKEND, NOT ISHOLIDAY),TRUE(),FALSE)
             //,"Day Rank",DAYRANK
             
         )
